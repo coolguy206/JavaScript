@@ -1,0 +1,470 @@
+<!doctype html>
+<html>
+<head>
+<title>Calorie Counter</title>
+<meta charset="UTF-8">
+<style>
+#container {
+	margin: 20px 0px;
+}
+#meal {
+	display: none;
+}
+label, input[type=text], button {
+	display: block;
+	margin-bottom: 10px;
+}
+button {
+	margin-top: 10px;
+}
+button:hover {
+	cursor: pointer;
+}
+.wrap {
+	width: 400px;
+	margin: auto;
+	padding: 10px;
+}
+table, tr, td{
+	border: 1px solid #000;
+}
+tr, td  {
+	padding: 10px;
+}
+.food-items:hover {
+	background: #00FFFF;
+}
+.totals {
+	position: fixed;
+	box-sizing: border-box;
+	width: 400px;
+	top: 20px;
+	right: 20px;
+	padding: 10px;
+	overflow: hidden;
+	border: 3px solid #000;
+	display: none;
+}
+.totals div {
+	width: 25%;
+	float: left;
+}
+.totals div h2 {
+	margin-bottom: 0px;
+}
+#grams b {
+	color: red;
+}
+</style>
+
+<script>
+//daily requirements =  weight * activity level (12-15)
+var dailyReq;
+
+//to lose weight defecit of 500 cal a day 
+var dailyCal;
+
+// 40/40/20 split
+//protein and carbs calories
+var proteinCarbs;
+
+//fats calories
+var fats;
+
+//4 calories = 1g protein and 1g carbs 9 calories = 1g fat
+// calculate total in grams for protein and carbs per day
+var proCarbsGrams;
+
+// calculate total in grams for fats in a day
+var fatGrams;
+
+//variable total protein
+var totalProtein = 0;
+
+//variable total carbs
+var totalCarbs = 0;
+
+//variable total fats
+var totalFats = 0;
+
+//variable total Calories
+var totalCal = 0;
+
+//create array to store food objects
+var foodArr = [];
+
+// define the class
+var People = function(name, weight) {
+	this.name = name;
+	this.weight = weight;
+};
+
+//global object
+var user = {};
+
+//display the new welcome text function
+var displayTxt = function() {
+	document.getElementById("title").innerHTML = "Hi " + user.name + " welcome to your Calorie Counter!";
+	document.getElementById("current-weight").innerHTML = "Your Current Weight is " + user.weight + " lbs";
+	document.getElementById("daily-req").innerHTML = "Your daily calorie requirements are " + dailyReq + " calories";
+	document.getElementById("grams").innerHTML = "For the 40/40/20 split which is 40% protein 40% carbs and 20% fats, your total amount of protein is <b>" + proCarbsGrams + "</b> grams a day and <b>" + proCarbsGrams + "</b> grams of carbs a day. Your total amount of fats is <b>" + fatGrams + "</b> grams a day.";
+	displayTotals();
+	//hide the current welcome message
+	document.getElementById('welcome').style.display = 'none';
+
+};
+
+//display the totals function
+var displayTotals = function() {
+	document.getElementById("protein-grams").innerHTML = totalProtein + " grams";
+	document.getElementById("total-protein").innerHTML = proCarbsGrams + " grams";
+	document.getElementById("carbs-grams").innerHTML = totalCarbs + " grams";
+	document.getElementById("total-carbs").innerHTML = proCarbsGrams + " grams";
+	document.getElementById("fats-grams").innerHTML = totalFats + " grams";
+	document.getElementById("total-fats").innerHTML = fatGrams + " grams";
+	document.getElementById("calories-grams").innerHTML = totalCal;
+	document.getElementById("total-calories").innerHTML = dailyCal;
+};
+
+//function to add to People class and display text
+var AddPeeps = function() {
+	//get the value from the input name field
+	var name = document.getElementById("name").value;
+	//get the value from the input weight field
+	var weight = document.getElementById("weight").value;
+	//create a new user from the People class
+	user =  new People(name, weight);
+
+	//change the css to display the meal form
+	document.getElementById('meal').style.display = 'block';
+	//get the radio input fields
+	var radios = document.getElementsByTagName('input');
+	//loop through the radio input fields to check if to lose weight, gain weight, or maintain weight
+	for (var i = 0; i < radios.length; i++) {
+    	if (radios[i].type === 'radio' && radios[i].value === 'lose weight' && radios[i].checked) {
+        	
+			dailyReq = user.weight * 13;
+
+			//to lose weight defecit of 500 cal a day 
+			dailyCal = dailyReq - 500;
+
+			// 40/40/20 split
+			//protein and carbs calories
+			proteinCarbs = Math.floor(dailyCal * 0.4);
+
+			//fats calories
+			fats = Math.floor(dailyCal * 0.2);
+
+			//4 calories = 1g protein and 1g carbs 9 calories = 1g fat
+			// calculate total in grams for protein and carbs per day
+			proCarbsGrams = Math.floor(proteinCarbs/4);
+
+			// calculate total in grams for fats in a day
+			fatGrams = Math.floor(fats/9);
+			//display the text
+			document.getElementById("daily-cal").innerHTML = "Your daily calorie goal is " + dailyCal + " a day to lose weight";
+
+    	} else if (radios[i].type === 'radio' && radios[i].value === 'gain weight' && radios[i].checked) {
+    		
+			dailyReq = user.weight * 13;
+
+			//to lose weight defecit of 500 cal a day 
+			dailyCal = dailyReq + 500;
+
+			// 40/40/20 split
+			//protein and carbs calories
+			proteinCarbs = Math.floor(dailyCal * 0.4);
+
+			//fats calories
+			fats = Math.floor(dailyCal * 0.2);
+
+			//4 calories = 1g protein and 1g carbs 9 calories = 1g fat
+			// calculate total in grams for protein and carbs per day
+			proCarbsGrams = Math.floor(proteinCarbs/4);
+
+			// calculate total in grams for fats in a day
+			fatGrams = Math.floor(fats/9);
+			//display the text
+			document.getElementById("daily-cal").innerHTML = "Your daily calorie goal is " + dailyCal + " a day to gain weight";
+    	} else if (radios[i].type === 'radio' && radios[i].value === 'maintain weight' && radios[i].checked) {
+    		
+			dailyReq = user.weight * 13;
+
+			//to lose weight defecit of 500 cal a day 
+			dailyCal = dailyReq;
+
+			// 40/40/20 split
+			//protein and carbs calories
+			proteinCarbs = Math.floor(dailyCal * 0.4);
+
+			//fats calories
+			fats = Math.floor(dailyCal * 0.2);
+
+			//4 calories = 1g protein and 1g carbs 9 calories = 1g fat
+			// calculate total in grams for protein and carbs per day
+			proCarbsGrams = Math.floor(proteinCarbs/4);
+
+			// calculate total in grams for fats in a day
+			fatGrams = Math.floor(fats/9);
+			//display the text
+			document.getElementById("daily-cal").innerHTML = "Your daily calorie goal is " + dailyCal + " a day to maintain your weight";
+    	}
+	}
+
+	//change the welcome text
+	displayTxt();
+
+	//display the totals
+	var x = document.getElementsByClassName("totals");
+	x[0].style.display = 'block';
+
+};
+
+
+//function for button click
+var clicker = function() {
+	//variable for food name from input field
+	var foodName = document.getElementById("food-name").value;
+
+	//variable for food protein from input field
+	var foodProtein = document.getElementById("food-protein").value;
+	foodProtein = Math.round(foodProtein);
+	//variable for food carbs from input field
+	var foodCarbs = document.getElementById("food-carbs").value;
+	foodCarbs = Math.round(foodCarbs);
+	//variable for food fats from input field
+	var foodFats = document.getElementById("food-fats").value;
+	foodFats = Math.round(foodFats);
+	//variable for food calories from input field
+	var foodCal = document.getElementById("food-calories").value;
+	foodCal = Math.round(foodCal);
+	//add to total protein
+	totalProtein += Number(foodProtein);
+
+	//add to total carbs
+	totalCarbs += Number(foodCarbs);
+
+	//add to total fats
+	totalFats += Number(foodFats);
+
+	//add to total calories
+	totalCal += Number(foodCal);
+
+	// displays how much grams are left
+	displayTotals();
+
+	//function to add food item to food array
+	var addTo = function(name, protein, carbs, fats, calories) {
+		//create new object
+		var obj = new Object();
+		obj.name = name;
+		obj.protein = protein;
+		obj.carbs = carbs;
+		obj.fats = fats;
+		obj.calories = calories;
+		//push to food array
+		foodArr.push(obj);
+	};
+
+	//calls to addTo function
+	addTo(foodName, foodProtein, foodCarbs, foodFats, foodCal);
+
+	//CODE TO DISPLAY FOOD 
+	//create div
+	var div = document.createElement('DIV');
+	//set div id with random number 
+	var y = Math.round((Math.random()*1000000) +1);
+	div.setAttribute('id', y); 
+	//create button
+	var btn = document.createElement('BUTTON');
+
+	//set button attributes
+	btn.setAttribute('onClick', 'deleteFunc(this.id)'); 
+	btn.setAttribute('name', 'delete-button' + foodArr[foodArr.length-1].calories);
+	//set id to same as div  
+	btn.setAttribute('id', y + 'a');
+	btn.setAttribute('data-parent', y); 
+	btn.setAttribute('data-pro', foodArr[foodArr.length-1].protein); 
+	btn.setAttribute('data-carbs', foodArr[foodArr.length-1].carbs); 
+	btn.setAttribute('data-fats', foodArr[foodArr.length-1].fats); 
+	btn.setAttribute('data-cal', foodArr[foodArr.length-1].calories); 
+
+	//set button to display the text delete
+	btn.innerHTML = 'delete';
+
+	//add the div to the #container
+	document.getElementById('container').appendChild(div);
+
+	//create table
+	var table = document.createElement("TABLE");
+	var tableId = Math.round((Math.random()*1000000) +1);
+    table.setAttribute("id", tableId);
+    table.setAttribute('class', 'food-items'); 
+   	div.appendChild(table);
+
+    //function to create and add tr to table
+    var addTr = function(table, tr) {
+		var y = document.createElement("TR");
+    	y.setAttribute("id", tr);
+    	document.getElementById(table).appendChild(y);
+	} 
+
+	//function to create and add td to tr
+	var addTd = function(txt, tr) {
+ 		var z = document.createElement("TD");
+    	var t = document.createTextNode(txt);
+   		z.appendChild(t);
+    	document.getElementById(tr).appendChild(z);
+	}
+
+	//create ids for tr with random numbers
+	var trId1 = Math.round((Math.random()*1000000) +1);
+	var trId2 = Math.round((Math.random()*1000000) +1);
+	//call functions to create tr
+	addTr(tableId, trId1);
+	addTr(tableId, trId2);
+
+	//call functions to create td
+	addTd('Food', trId1);
+	addTd('Protein', trId1);
+	addTd('Carbs', trId1);
+	addTd('Fats', trId1);
+	addTd('Calories', trId1);
+	addTd(foodArr[foodArr.length-1].name, trId2);
+	addTd(foodArr[foodArr.length-1].protein, trId2);
+	addTd(foodArr[foodArr.length-1].carbs, trId2);
+	addTd(foodArr[foodArr.length-1].fats, trId2);
+	addTd(foodArr[foodArr.length-1].calories, trId2);
+
+	//add the button at the end
+	div.appendChild(btn);
+};
+
+var deleteFunc = function(cal) {
+	//get element that was clicked
+	var thisThing = document.getElementById(cal);
+	//get element carbs
+	var carbs = thisThing.getAttribute('data-carbs');
+	//get element protein
+	var protein = thisThing.getAttribute('data-pro');
+	//get element fats
+	var fats = thisThing.getAttribute('data-fats');
+	//get element calories
+	var calories = thisThing.getAttribute('data-cal');
+	//get parent div id from delete button
+	var div = thisThing.getAttribute('data-parent');
+	//assign variable for div element for deletion
+	var x = document.getElementById(div);
+	//remove parent div
+	x.remove();
+
+	//do the math for totals
+	totalCal -= calories;
+	totalProtein -= protein;
+	totalCarbs -= carbs;
+	totalFats -= fats;
+
+	// displays how much is left
+	displayTotals();
+
+};
+
+
+</script>
+
+</head>
+
+<body>
+<div class="wrap">	
+<h1 id="title">Calorie Counter</h1>
+<p id="welcome">
+	Hi welcome to your Calorie Counter!!!<br/>
+	Please add your name, weight and goal to find your macros.
+</p>
+
+
+<div>
+	<label>What is your name?</label>
+	<input type="text" id="name">
+	<label>How much do you weigh?</label>
+	<input type="text" id="weight">
+	<label>What is your goal?</label>
+	<input type="radio" name="goal" value="lose weight" checked>Lose Weight
+	<input type="radio" name="goal" value="gain weight">Gain Weight
+	<input type="radio" name="goal" value="maintain weight">Maintain Weight
+	<button onClick="AddPeeps()">Submit</button>
+</div>
+
+<h2 id="current-weight"></h2>
+
+<h3 id="daily-req"></h3>
+
+<h3 id="daily-cal"></h3>
+<p id="grams"></p>
+
+<div id="meal">
+	<h3>Enter your food</h3>
+
+	<p>Tip: To find your food nutritional information. Visit <a href="http://www.calorieking.com/" target="_blank">Calorie King.com</a> and search for your food item.</p>
+
+
+	<label>Food Item Name and amount</label>
+	<small>Ex: Banana 4oz</small>
+	<input type="text" id="food-name">
+
+	<label>Protein in grams</label>
+	<input type="text" id="food-protein">
+
+	<label>Carbs in grams</label>
+	<input type="text" id="food-carbs">
+
+	<label>Fats in grams</label>
+	<input type="text" id="food-fats">
+
+	<label>Calories</label>
+	<input type="text" id="food-calories">
+
+	<button onClick="clicker()">ADD</button>
+
+	<div id="container">
+	</div><!--#container-->
+
+
+</div><!--#meal-->
+
+
+</div><!--.wrap-->
+
+	<div class="totals" id="totals">
+		<div>
+			<h2>Protein</h2>
+			<h3 id="protein-grams"></h3>
+			<p>of</p>
+			<h3 id="total-protein"></h3>
+		</div>
+
+		<div>
+			<h2>Carbs</h2>
+			<h3 id="carbs-grams"></h3>
+			<p>of</p>
+			<h3 id="total-carbs"></h3>
+		</div>
+
+		<div>
+			<h2>Fats</h2>
+			<h3 id="fats-grams"></h3>
+			<p>of</p>
+			<h3 id="total-fats"></h3>
+		</div>
+
+		<div>
+			<h2>Calories</h2>
+			<h3 id="calories-grams"></h3>
+			<p>of</p>
+			<h3 id="total-calories"></h3>
+		</div>
+	</div><!--.totals-->
+
+</body>
+
+</html>
