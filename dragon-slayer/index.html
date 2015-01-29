@@ -1,0 +1,395 @@
+<!doctype html>
+<html>
+<head>
+<title>Dragon Slayer JS Game</title>
+
+<meta charset="UTF-8">
+
+<style>
+body {
+	background-image: url('images/dark-burning-sky.jpg');
+	background-repeat: no-repeat;
+	background-position: top center;
+	background-size: cover;
+	font-family: arial;
+	padding: 10px 0px;
+	margin: 0px;
+}
+header {
+	margin-bottom: 20px;
+}
+header, footer {
+	text-align: center;
+}
+header h1 {
+	background-color: #fff;
+	padding: 10px;
+	display: inline;
+	border: 3px solid #000;
+	border-radius: 10px;
+}
+main {
+	min-height: 400px;
+	overflow: hidden;
+	padding-top: 20px;
+	background: url('images/ground-copy.png'), url('images/mountains.png');
+	background-position: center bottom, center top;
+	background-repeat: repeat-x;
+}
+section {
+	width: 50%;
+	float: left;
+}
+section h2 {
+	border: 3px solid #000;
+	padding: 10px;
+	border-radius: 10px;
+	background: #fff;
+	display: inline;
+	margin: 10px 0px;
+}
+meter {
+	width: 90%;
+	border: 3px solid #000;
+	height: 50px;
+	display: block;
+	margin: 10px 0px;
+}
+.image-container {
+	overflow: hidden;
+}
+.knight {
+	float: right;
+	height: 605px;
+}
+#knight-ko, #dragon-ko {
+	position: absolute;
+	display: none;
+
+}
+.action {
+	clear: both;
+	background: #fff;
+	border: 3px solid #000;
+	border-radius: 10px;
+	padding: 20px 0px;
+}
+.action p {
+	text-align: center;
+	font-size: 1.5em;
+}
+.buttons {
+	text-align: center;
+}
+button {
+	padding: 10px;
+	font-size: 1.125em;
+	background: #f00;
+	border: 3px solid #000;
+	border-radius: 10px;
+}
+button:hover {
+	background: yellow;
+	cursor: pointer;
+}
+button:active {
+	background: green;
+}
+#refresh {
+	visibility: hidden;
+}
+footer {
+	color: #fff;
+	background: #000;
+}
+</style>
+
+<script>
+//display dragon and knight life on load of document
+window.onload = function() {
+	//set knight and dragon health at start
+	meter("knight-meter", "value", knightLife);
+	meter("dragon-meter", "value", dragonLife);
+
+	//set knight and dragon names
+	setName("knight-name", knight.name);
+	setName("dragon-name", dragon.name);
+};
+
+
+//function to set health for meter tags
+var meter = function(element, attribute, variable) {
+	document.getElementById(element).setAttribute(attribute, variable);
+};
+
+//function set name
+var setName = function(element, object) {
+	document.getElementById(element).innerHTML = object;
+}
+
+//dragon class
+var dragon = new Object();
+dragon.name = 'Smog the Dragon';
+dragon.health = 100;
+dragon.tailWhip = 20;
+dragon.dragonClaw = 40;
+dragon.dragonFire = 50;
+
+
+//knight class
+var knight = new Object();
+knight.name = 'Aragorn';
+knight.health = 100;
+knight.swordSlash = 20;
+knight.bowAndArrow = 10;
+knight.spearThrow = 40;
+
+// get dragons attack by a random number 0 - 6
+var dragonAttack = Math.floor(Math.random() * 6);
+var dragonDammage = 0;
+
+//global variable for dragons life
+var dragonLife = dragon.health;
+
+//global variabl for knights health
+var knightLife = knight.health;
+var knightAttack;
+var knightDamage = 0;
+
+//function to get Dragon Attack
+var dragonMove = function() {
+	//determine what the dragon attacks with
+	if (dragonAttack < 3) {
+		dragonAttack = 'tail whip';
+			if (dragonAttack == 'tail whip') {
+				dragonDamage = dragon.tailWhip;
+			}
+	} else if (dragonAttack > 3 && dragonAttack < 5) {
+		dragonAttack = 'dragon claw';
+			if (dragonAttack == 'dragon claw') {
+				dragonDamage = dragon.dragonClaw;
+			}
+
+	} else {
+		dragonAttack = 'dragon fire';
+			if (dragonAttack == 'dragon fire') {
+				dragonDamage = dragon.dragonFire;
+			}
+	}
+};
+
+//function to call for knight attack
+var knightMove = function(string) {
+	if (string == 'sword slash'){
+		knightDamage = knight.swordSlash;
+	} else if (string == 'bow and arrow') {
+		knightDamage = knight.bowAndArrow;
+	} else if (string == 'spear throw') {
+		knightDamage = knight.spearThrow;
+	}
+	
+};
+
+//function to put into action what the knight does to the dragon
+var knightAction = function() {
+	console.log('you attacked with ' + attack);
+
+	//tell the user what they attacked with
+	alert(knight.name + ' attacked with ' + attack);
+
+	//call knights attack
+	knightMove(attack);
+
+	//damage you did to the dragon
+	dragonLife -= knightDamage;
+
+	console.log('you did a total damage of ' + knightDamage + '! The dragons health is ' + dragonLife);
+
+	//update the dragons life bar
+	meter("dragon-meter", "value", dragonLife);
+
+};
+
+//function to put into action what the dragon does to the knight
+var dragonAction = function() {
+	//call dragons attack
+	dragonMove();
+
+	console.log('the dragon attacks you with ' + dragonAttack);
+	//tell the user what the dragon attacked with
+	alert(dragon.name + ' attacks you with ' + dragonAttack + '! Choose your next attack!');
+
+	//damage done to knight by the dragon
+	knightLife -= dragonDamage;
+
+	console.log('Your health has decreased by ' + dragonDamage + ' and is now ' + knightLife);
+
+	//update the knights life bar
+	meter("knight-meter", "value", knightLife);
+
+};
+
+//check if the dragon is dead
+var check = function() {
+	if (dragonLife <= 0) {
+		console.log('You did it! You have vanquished ' + dragon.name + '! Its time for a beer!!!');
+		//if dead display the K.O. image
+		document.getElementById("dragon-ko").style.display = "block";
+		//tell the user they killed the dragon
+		alert('You did it! You have vanquished ' + dragon.name + '! Its time for a beer!!!');
+		//call function to play again
+		playAgain();
+	
+	} else {
+		//dragon attack
+		dragonAction();
+	}
+};
+
+//check if the knight is dead
+var doubleCheck = function() {
+	
+	if (knightLife <= 0) {
+		console.log(dragon.name + ' has killed you.');
+		//if knight is dead display the K.O. image
+		document.getElementById("knight-ko").style.display = "block";
+		//tell the users the knight is dead
+		alert(dragon.name + ' has killed you.');
+		//call function to play again
+		playAgain();
+	}
+};
+
+//global variable
+var attack;
+
+//function to call when clicking the sword slash button
+var sword = function() {
+	attack = "sword slash";
+	game();
+};
+
+//function to call when clicking the bow and arrow button
+var bow = function() {
+	attack = "bow and arrow";
+	game();
+};
+
+//function to call when clicking the spear throw button
+var spear = function() {
+	attack = "spear throw";
+	game();
+};
+
+//function to hide the buttons after the game is over
+var hide = function(element, attribute) {
+	document.getElementById(element).style.display = attribute;
+};
+
+//function to play again
+var playAgain = function() {
+	//change the text from "What is your attack?" to "Do you want to play again?"
+	document.getElementById('message').innerHTML = 'Do you want to play again?';
+	//hide the 3 buttons
+	hide('sword', 'none');
+	hide('bow', 'none');
+	hide('spear', 'none');
+	//display the play again button
+	document.getElementById('refresh').style.visibility = "visible";
+};
+
+//function to refresh the page
+var refresh = function() {
+	 location.reload();
+};
+
+//function that controls the game logic
+var game = function() {
+	if(attack == 'sword slash') {
+	
+		//knight attack
+		knightAction();
+
+		//check if the dragon is dead
+		check();
+		
+		//check again if knight is dead
+		doubleCheck();	
+	
+	} else if(attack == 'bow and arrow') {
+
+		//knight attack
+		knightAction();
+
+		//check if the dragon is dead
+		check();
+		
+		//check again if knight is dead
+		doubleCheck();
+
+	}  else if(attack == 'spear throw') {
+
+		//knight attack
+		knightAction();
+
+		//check if the dragon is dead
+		check();
+		
+		//check again if knight is dead
+		doubleCheck();
+	}  
+
+};
+
+
+</script>
+
+<!--[if lt IE 9]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<![endif]-->
+
+</head>
+<body>
+
+<header>	
+	<h1>Dragon Slayer JavaScript Game</h1>
+</header>
+
+<main>
+
+<section>
+	<h2 id="knight-name"></h2>
+	<meter value="" max="100" id="knight-meter"></meter>
+	<div class="image-container">
+		<img src="images/ko.png" alt="K.O." id="knight-ko">
+		<img src="images/Knight.png" alt="knight" class="knight">
+	</div>
+</section>
+
+<section>
+	<h2 id="dragon-name"></h2>
+	<meter value="" max="100" id="dragon-meter"></meter>
+	<div class="image-container">
+		<img src="images/ko.png" alt="K.O." id="dragon-ko">
+		<img src="images/dragon.png" alt="dragon">
+	</div>
+</section>
+
+<div class="action">
+	<p id="message">What is your attack?</p>
+	<div class="buttons">
+		<button onClick="refresh()" id="refresh">Play Again</button>
+		<button onClick="sword()" id="sword">Sword Slash</button>
+		<button onClick="bow()" id="bow">Bow &amp; Arrow</button>
+		<button onClick="spear()" id="spear">Spear Throw</button>
+	</div>
+</div>
+
+</main>
+
+<footer>
+<small>&copy; 2015 DavidTProductions.com</small>
+</footer>
+
+</body>
+</html>
